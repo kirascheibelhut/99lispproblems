@@ -57,6 +57,15 @@
       items
       (append (my-reverse (cdr items)) (list (car items)))))
 
+; Below is an alternate implementation of reverse that avoids append. 
+
+(define (new-reverse items)
+(define (iter list1 list2)
+  (if (null? list1)
+      list2
+      (iter (cdr list1) (cons (car list1) list2))))
+(iter items (list )))
+
 #|
 6. (*) Find out whether a list is a palindrome.
        A palindrome can be read forward or backward; e.g. (x a m a x).
@@ -108,7 +117,7 @@ Unfortuantely, I ended up having to use the "eqv?" predicate, which I was also n
       items
       (if (equal? (car items) (cadr items))
           (my-compress (cdr items))
-          (append (list (car items)) (my-compress (cdr items))))))
+          (cons (car items) (my-compress (cdr items))))))
 
 #|
 9. (**) Pack consecutive duplicates of list elements into sublists.
@@ -117,13 +126,27 @@ Unfortuantely, I ended up having to use the "eqv?" predicate, which I was also n
                  ((A A A A) (B) (C C) (A A) (D) (E E E E))
 |#
 
-;;NOT WORKING.
-(define (my-pack items)
+(define (count-initial-repeat items)
+  (if (or (null? items) (null? (cdr items)) (not (equal? (car items) (cadr items))))
+      1
+      (+ 1 (count-initial-repeat (cdr items)))))
+
+(define (initial-repeat items k)
   (cond ((null? items) items)
-        ((null? (cdr items)) items)
-        ((equal? (car items) (cadr items)) (append (list (car items)) (my-pack (cdr items))))
-        (else (list (car items) (my-pack (cdr items))))))
-      
+        ((<= k 1) (list (car items)))
+        (else (cons (car items) (initial-repeat items (- k 1))))))
+
+(define (after-repeat items k)
+  (if (or (null? items) (null? (cdr items)) (>= k (my-length items))) 
+      (list )
+      (cons (my-element-at items (+ k 1)) (after-repeat items (+ k 1)))))
+
+(define (my-pack items)
+  (if (null? items)
+      items
+      (cons (initial-repeat items (count-initial-repeat items)) 
+            (my-pack (after-repeat items (count-initial-repeat items))))))
+   
 #|
 10. (*) Run-length encoding of a list.
         Use the result of problem 9 to implement the so-called run-length encoding data compression method. 
@@ -163,7 +186,7 @@ Unfortuantely, I ended up having to use the "eqv?" predicate, which I was also n
 (define (my-dupli items)
   (if (null? items) 
       items
-      (append (list (car items) (car items)) (my-dupli (cdr items)))))
+      (cons (car items) (cons (car items) (my-dupli (cdr items))))))
 
 #|
 15. (**) Replicate the elements of a list a given number of times.
@@ -210,19 +233,19 @@ Unfortuantely, I ended up having to use the "eqv?" predicate, which I was also n
 (define (my-remove-at items k)
   (cond ((or (null? items) (= k 0)) items)
         ((= k 1) (cdr items))
-        (else (append (list (car items)) (my-remove-at (cdr items) (- k 1))))))
-       
+        (else (cons (car items) (my-remove-at (cdr items) (- k 1))))))
+
 #|
 21. (*) Insert an element at a given position into a list.
         Example: (insert-at 'alfa '(a b c d) 2)
                  (A ALFA B C D)
 |#
 
-(define (my-insert-at new items k)
+(define (my-insert-at elem items k)
   (cond ((= k 0) items)
-        ((null? items) (list new))
-        ((= k 1) (append (list new) items))
-        (else (append (list (car items)) (my-insert-at new (cdr items) (- k 1))))))
+        ((null? items) (list elem))
+        ((= k 1) (cons elem items))
+        (else (cons (car items) (my-insert-at elem (cdr items) (- k 1))))))
 
 #|
 22. (*) Create a list containing all integers within a given range.
