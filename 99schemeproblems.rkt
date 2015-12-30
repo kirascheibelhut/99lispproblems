@@ -11,9 +11,18 @@
 |#
 
 (define (my-last items)
-  (if (null? (cdr items))
+  (if (or (null? items) (null? (cdr items)))
       items
       (my-last (cdr items))))
+
+#|
+Tests:
+(my-last '(a b c d))
+(my-last '())
+(my-last '(() () ()))
+(my-last '(a))
+(my-last '((a b c) (d e f) (g (h i))))
+|#
 
 #|
 2. (*) Find the last but one box of a list.
@@ -22,9 +31,18 @@
 |#
 
 (define (my-but-last items)
-  (if (null? (cddr items))
+  (if (or (null? items) (null? (cdr items)) (null? (cddr items)))
       items
       (my-but-last (cdr items))))
+
+#|
+Tests:
+(my-but-last '(a b c d))
+(my-but-last '())
+(my-but-last '(() () ()))
+(my-but-last '(a))
+(my-but-last '((a b c) (d e f) (g (h i))))
+|#
 
 #|
 3. (*) Find the Kth element of a list.
@@ -40,6 +58,18 @@
           (my-element-at (cdr items) (- k 1)))))
 
 #|
+Tests:
+(my-element-at '(a b c d e) 3)
+(my-element-at '() 1)
+(my-element-at '() 3)
+(my-element-at '(() () ()) 2)
+(my-element-at '(a) 1)
+(my-element-at '(a) 3)
+(my-element-at '((a b c) (d e f) (g (h i))) 3)
+(my-element-at '((a b c) (d e f) (g (h i))) 5)
+|#
+
+#|
 4. (*) Find the number of elements of a list.
 |#
 
@@ -47,6 +77,15 @@
   (if (null? items)
       0
       (+ 1 (my-length (cdr items)))))
+
+#|
+Tests:
+(my-length '(a b c d e))
+(my-length '())
+(my-length '(() () ()))
+(my-length '(a))
+(my-length '((a b c) (d e f) (g (h i))))
+|#
 
 #|
 5. (*) Reverse a list.
@@ -57,24 +96,53 @@
       items
       (append (my-reverse (cdr items)) (list (car items)))))
 
-; Below is an alternate implementation of reverse that avoids append. 
+#|
+Tests:
+(my-reverse '(a b c d e))
+(my-reverse '())
+(my-reverse '(() () ()))
+(my-reverse '(a))
+(my-reverse '((a b c) (d e f) (g (h i))))
+|#
+
+; New-reverse is an alternate implementation of reverse that avoids append. 
 
 (define (new-reverse items)
-(define (iter list1 list2)
-  (if (null? list1)
-      list2
-      (iter (cdr list1) (cons (car list1) list2))))
-(iter items (list )))
+  (define (iter initial result)
+    (if (null? initial)
+        result
+        (iter (cdr initial) (cons (car initial) result))))
+  (iter items '()))
+
+#|
+Tests:
+(new-reverse '(a b c d e))
+(new-reverse '())
+(new-reverse '(() () ()))
+(new-reverse '(a))
+(new-reverse '((a b c) (d e f) (g (h i))))
+|#
 
 #|
 6. (*) Find out whether a list is a palindrome.
        A palindrome can be read forward or backward; e.g. (x a m a x).
 |#
 
-(define (palindrome? items)
+(define (my-palindrome? items)
   (if (equal? items (my-reverse items))
       #t
       #f))
+
+#|
+Tests:
+(my-palindrome? '(x a m a x))
+(my-palindrome? '(a b c d e))
+(my-palindrome? '())
+(my-palindrome? '(() () ()))
+(my-palindrome? '(a))
+(my-palindrome? '((a b c) (d e f) (g (h i))))
+(my-palindrome? '((a b c) (d e f) (g (h i)) (g (h i)) (d e f) (a b c)))
+|#
 
 #|
 Since I was not already familiar with the "equal?" predicate, I wanted to try to create my own predicate to determine whether two lists were equal. 
@@ -86,10 +154,21 @@ Unfortuantely, I ended up having to use the "eqv?" predicate, which I was also n
         ((and (pair? list1) (pair? list2) (my-equal-lists? (car list1) (car list2)) (my-equal-lists? (cdr list1) (cdr list2))) #t)
         (else #f)))
 
-(define (my-palindrome? items)
+(define (new-palindrome? items)
   (if (my-equal-lists? items (my-reverse items))
       #t
       #f))
+
+#|
+Tests:
+(new-palindrome? '(x a m a x))
+(new-palindrome? '(a b c d e))
+(new-palindrome? '())
+(new-palindrome? '(() () ()))
+(new-palindrome? '(a))
+(new-palindrome? '((a b c) (d e f) (g (h i))))
+(new-palindrome? '((a b c) (d e f) (g (h i)) (g (h i)) (d e f) (a b c)))
+|#
 
 #|
 7. (**) Flatten a nested list structure.
@@ -103,6 +182,16 @@ Unfortuantely, I ended up having to use the "eqv?" predicate, which I was also n
   (cond ((null? items) items)
         ((pair? items) (append (my-flatten (car items)) (my-flatten (cdr items))))
         (else (list items))))
+
+#|
+Tests:
+(my-flatten '(a (b (c d) e)))
+(my-flatten '())
+(my-flatten '(() () ()))
+(my-flatten '(a))
+(my-flatten '((a)))
+(my-flatten '((a b c) (d e f) (g (h i))))
+|#
 
 #|
 8. (**) Eliminate consecutive duplicates of list elements.
@@ -120,33 +209,58 @@ Unfortuantely, I ended up having to use the "eqv?" predicate, which I was also n
           (cons (car items) (my-compress (cdr items))))))
 
 #|
+Tests:
+(my-compress '(a a a a b c c a a d e e e e))
+(my-compress '())
+(my-compress '(() () ()))
+(my-compress '(a))
+(my-compress '((a b c) (a b c) (d e f) (g (h i)) (g (h i)) (g (h i))))
+|#
+
+#|
 9. (**) Pack consecutive duplicates of list elements into sublists.
         If a list contains repeated elements, they should be placed in separate sublists. 
         Example: (pack '(a a a a b c c a a d e e e e))
                  ((A A A A) (B) (C C) (A A) (D) (E E E E))
 |#
 
+; Count-initial-repeat counts the number of consecutive duplicates of the first element in the list, items.
+
 (define (count-initial-repeat items)
   (if (or (null? items) (null? (cdr items)) (not (equal? (car items) (cadr items))))
       1
       (+ 1 (count-initial-repeat (cdr items)))))
+
+; Initial-repeat prints a list of the first element in the list, items, repeated k times.
 
 (define (initial-repeat items k)
   (cond ((null? items) items)
         ((<= k 1) (list (car items)))
         (else (cons (car items) (initial-repeat items (- k 1))))))
 
-(define (after-repeat items k)
+; Partial-tail prints a list of all of the elements from the (k+1)st position in the list, items, to the end.
+
+(define (partial-tail items k)
   (if (or (null? items) (null? (cdr items)) (>= k (my-length items))) 
-      (list )
-      (cons (my-element-at items (+ k 1)) (after-repeat items (+ k 1)))))
+      '()
+      (cons (my-element-at items (+ k 1)) (partial-tail items (+ k 1)))))
 
 (define (my-pack items)
+  (let ((k (count-initial-repeat items)))
   (if (null? items)
       items
-      (cons (initial-repeat items (count-initial-repeat items)) 
-            (my-pack (after-repeat items (count-initial-repeat items))))))
-   
+      (cons (initial-repeat items k) 
+            (my-pack (partial-tail items k))))))
+
+#|
+Tests:
+(my-pack '(a a a a b c c a a d e e e e))
+(my-pack '())
+(my-pack '(() () ()))
+(my-pack '(a))
+(my-pack '((a b c) (a b c) (d e f) (g (h i)) (g (h i)) (g (h i))))
+|#
+
 #|
 10. (*) Run-length encoding of a list.
         Use the result of problem 9 to implement the so-called run-length encoding data compression method. 
@@ -187,6 +301,15 @@ Unfortuantely, I ended up having to use the "eqv?" predicate, which I was also n
   (if (null? items) 
       items
       (cons (car items) (cons (car items) (my-dupli (cdr items))))))
+
+#|
+Tests:
+(my-dupli '(a b c d))
+(my-dupli '())
+(my-dupli '(() () ()))
+(my-dupli '(a))
+(my-dupli '((a b c) (d e f) (g (h i)) (g (h i))))
+|#
 
 #|
 15. (**) Replicate the elements of a list a given number of times.
@@ -236,6 +359,18 @@ Unfortuantely, I ended up having to use the "eqv?" predicate, which I was also n
         (else (cons (car items) (my-remove-at (cdr items) (- k 1))))))
 
 #|
+Tests:
+(my-remove-at '(a b c d) 2)
+(my-remove-at '() 1)
+(my-remove-at '() 3)
+(my-remove-at '(() () ()) 2)
+(my-remove-at '(a) 1)
+(my-remove-at '(a) 3)
+(my-remove-at '((a b c) (d e f) (g (h i))) 3)
+(my-remove-at '((a b c) (d e f) (g (h i))) 5)
+|#
+
+#|
 21. (*) Insert an element at a given position into a list.
         Example: (insert-at 'alfa '(a b c d) 2)
                  (A ALFA B C D)
@@ -248,6 +383,18 @@ Unfortuantely, I ended up having to use the "eqv?" predicate, which I was also n
         (else (cons (car items) (my-insert-at elem (cdr items) (- k 1))))))
 
 #|
+Tests:
+(my-insert-at 'alfa '(a b c d) 2)
+(my-insert-at 2 '() 1)
+(my-insert-at 2 '() 3)
+(my-insert-at 'b '(() () ()) 2)
+(my-insert-at 'alfa '(a) 1)
+(my-insert-at 'alfa '(a) 3)
+(my-insert-at 1 '((a b c) (d e f) (g (h i))) 3)
+(my-insert-at 1 '((a b c) (d e f) (g (h i))) 5)
+|#
+
+#|
 22. (*) Create a list containing all integers within a given range.
         If first argument is smaller than second, produce a list in decreasing order.
         Example: (range 4 9)
@@ -258,6 +405,18 @@ Unfortuantely, I ended up having to use the "eqv?" predicate, which I was also n
   (cond ((< j k) (cons j (my-range (+ j 1) k)))
         ((> j k) (cons j (my-range (- j 1) k)))
         (else (list j))))
+
+#|
+Tests:
+(my-range 4 9)
+(my-range 9 4)
+(my-range 0 4)
+(my-range 4 0)
+(my-range -4 9)
+(my-range 9 -4)
+(my-range -4 -9)
+(my-range -9 -4)
+|#
 
 #|
 23. (**) Extract a given number of randomly selected elements from a list.
