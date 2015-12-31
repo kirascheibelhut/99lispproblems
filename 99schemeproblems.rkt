@@ -151,7 +151,7 @@ Unfortuantely, I ended up having to use the "eqv?" predicate, which I was also n
 |#
 (define (my-equal-lists? list1 list2)
   (cond ((eqv? list1 list2) #t)
-        ((and (pair? list1) (pair? list2) (my-equal-lists? (car list1) (car list2)) (my-equal-lists? (cdr list1) (cdr list2))) #t)
+        ((and (list? list1) (list? list2) (my-equal-lists? (car list1) (car list2)) (my-equal-lists? (cdr list1) (cdr list2))) #t)
         (else #f)))
 
 (define (new-palindrome? items)
@@ -180,7 +180,7 @@ Tests:
 
 (define (my-flatten items)
   (cond ((null? items) items)
-        ((pair? items) (append (my-flatten (car items)) (my-flatten (cdr items))))
+        ((list? items) (append (my-flatten (car items)) (my-flatten (cdr items))))
         (else (list items))))
 
 #|
@@ -231,12 +231,12 @@ Tests:
       1
       (+ 1 (count-initial-repeat (cdr items)))))
 
-; Initial-repeat prints a list of the first element in the list, items, repeated k times.
+; My-repeat prints a list of k elem's.
 
-(define (initial-repeat items k)
-  (cond ((null? items) items)
-        ((<= k 1) (list (car items)))
-        (else (cons (car items) (initial-repeat items (- k 1))))))
+(define (my-repeat elem k)
+  (if (= k 0) 
+      '()
+      (cons elem (my-repeat elem (- k 1)))))
 
 ; Partial-tail prints a list of all of the elements from the (k+1)st position in the list, items, to the end.
 
@@ -249,7 +249,7 @@ Tests:
   (let ((k (count-initial-repeat items)))
   (if (null? items)
       items
-      (cons (initial-repeat items k) 
+      (cons (my-repeat (car items) k) 
             (my-pack (partial-tail items k))))))
 
 #|
@@ -269,6 +269,22 @@ Tests:
                  ((4 A) (1 B) (2 C) (2 A) (1 D) (4 E))
 |#
 
+(define (my-encode items)
+  (define (iter items)
+    (if (null? items)
+        items
+        (cons (list (my-length (car items)) (car (car items))) (iter (cdr items)))))
+  (iter (my-pack items)))
+
+#|
+Tests:
+(my-encode '(a a a a b c c a a d e e e e))
+(my-encode '())
+(my-encode '(() () ()))
+(my-encode '(a))
+(my-encode '((a b c) (a b c) (d e f) (g (h i)) (g (h i)) (g (h i))))
+|#
+
 #|
 11. (*) Modified run-length encoding.
         Modify the result of problem 10 in such a way that if an element has no duplicates it is simply copied into the result list. 
@@ -277,9 +293,41 @@ Tests:
                  ((4 A) B (2 C) (2 A) D (4 E))
 |#
 
+(define (my-encode-modified items)
+  (define (iter items)
+    (cond ((null? items) items)
+          ((= (my-length (car items)) 1) (cons (car (car items)) (iter (cdr items))))
+          (else (cons (list (my-length (car items)) (car (car items))) (iter (cdr items))))))
+  (iter (my-pack items)))
+
+#|
+Tests:
+(my-encode-modified '(a a a a b c c a a d e e e e))
+(my-encode-modified '())
+(my-encode-modified '(() () ()))
+(my-encode-modified '(a))
+(my-encode-modified '((a b c) (a b c) (d e f) (g (h i)) (g (h i)) (g (h i))))
+|#
+
 #|
 12. (**) Decode a run-length encoded list.
          Given a run-length code list generated as specified in problem 11. Construct its uncompressed version.
+|#
+
+(define (my-decode items)
+  (cond ((null? items) items)
+        ((and (list? (car items)) (= (my-length (car items)) 2) (number? (car (car items)))) (append (my-repeat (cadr (car items)) (car (car items))) (my-decode (cdr items))))
+        (else (cons (car items) (my-decode (cdr items))))))
+
+#|
+Tests:
+(my-decode '((4 a) b (2 c) (2 a) d (4 e)))
+(my-decode '((4 1) 2 (2 3) (2 4) 5 (4 6)))
+(my-decode '())
+(my-decode '((3 ())))
+(my-decode '(a))
+(my-decode '((2 (a b c)) (d e f) (3 (g (h i))))) 
+(my-decode '((2 (a b c)) (4 e f) (3 (g (h i))) (4 j) (2 3) (k l))) 
 |#
 
 #|
@@ -290,7 +338,22 @@ Tests:
          Example: (encode-direct '(a a a a b c c a a d e e e e))
                   ((4 A) B (2 C) (2 A) D (4 E))
 |#
-      
+   
+(define (my-encode-direct items)
+  (let ((k (count-initial-repeat items)))
+  (cond ((null? items) items)
+        ((= k 1) (cons (car items) (my-encode-direct (partial-tail items k))))
+        (else (cons (list k (car items)) (my-encode-direct (partial-tail items k)))))))
+
+#|
+Tests:
+(my-encode-direct '(a a a a b c c a a d e e e e))
+(my-encode-direct '())
+(my-encode-direct '(() () ()))
+(my-encode-direct '(a))
+(my-encode-direct '((a b c) (a b c) (d e f) (g (h i)) (g (h i)) (g (h i))))
+|#
+
 #|
 14. (*) Duplicate the elements of a list.
         Example: (dupli '(a b c c d))
