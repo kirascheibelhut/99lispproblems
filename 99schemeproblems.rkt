@@ -458,8 +458,32 @@ Tests:
 18. (**) Extract a slice from a list.
          Given two indices, I and K, the slice is the list containing the elements between the Ith and Kth element of the original list (both limits included). 
          Start counting the elements with 1.
-         Example: (slice '(a b c d e f g h i k) 3 7)
+         Example: (slice '(a b c d e f g h i j k) 3 7)
                   (C D E F G)          
+|#
+
+(define (my-slice items i k)
+  (cond ((> i k) (my-slice items k i))
+        ((or (null? items) (and (<= i 1) (>= k (my-length items)))) items)
+        ((<= i 1) (partial-head items k))
+        (else (partial-head (partial-tail items (- i 1)) (+ (- k i) 1)))))
+
+#|
+Tests:
+(my-slice '(a b c d e f g h i j k) 3 7)
+(my-slice '(a b c d) 2 3)
+(my-slice '(a b c d) 1 4)
+(my-slice '(a b c d) 0 3)
+(my-slice '(a b c d) -1 2)
+(my-slice '(a b c d) -1 0)
+(my-slice '(a b c d) 3 6)
+(my-slice '(a b c d) 6 8)
+(my-slice '(a b c d) 2 2)
+(my-slice '(a b c d) 4 2)
+(my-slice '() 3 7)
+(my-slice '(() () ()) 2 3)
+(my-slice '(a) 1 4)
+(my-slice '((a b c) (d e f) (g (h i)) (j (k l))) 2 3)
 |#
 
 #|
