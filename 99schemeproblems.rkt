@@ -380,6 +380,23 @@ Tests:
                   (A A A B B B C C C)
 |#
 
+(define (my-repli items k)
+  (if (or (null? items) (<= k 0))
+      '()
+      (append (my-repeat (car items) k) (my-repli (cdr items) k))))
+
+#|
+Tests:
+(my-repli '(a b c) 3)
+(my-repli '(a b c) 1)
+(my-repli '(a b c) 0)
+(my-repli '(a b c) -1)
+(my-repli '() 4)
+(my-repli '(() () ()) 2)
+(my-repli '(a) 5)
+(my-repli '((a b c) (d e f) (g (h i)) (g (h i))) 2)
+|#
+
 #|
 16. (**) Drop every N'th element from a list.
          Example: (drop '(a b c d e f g h i k) 3)
