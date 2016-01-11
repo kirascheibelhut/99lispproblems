@@ -399,8 +399,34 @@ Tests:
 
 #|
 16. (**) Drop every N'th element from a list.
-         Example: (drop '(a b c d e f g h i k) 3)
-                  (A B D E G H K)
+         Example: (drop '(a b c d e f g h i j k) 3)
+                  (A B D E G H J K)
+|#
+
+; Partial-head prints a list of all of the elements from the beginning of the list, items, to the kth position.
+
+(define (partial-head items k)
+  (if (or (null? items) (<= k 0))
+      '()
+      (cons (car items) (partial-head (cdr items) (- k 1)))))
+
+(define (my-drop items k)
+  (cond ((or (null? items) (= k 1)) '())
+        ((<= k 0) items)
+        (else (append (partial-head items (- k 1)) (my-drop (partial-tail items k) k)))))
+
+#|
+Tests:
+(my-drop '(a b c d e f g h i j k) 3)
+(my-drop '(a b c d) 7)
+(my-drop '(a b c d) 4)
+(my-drop '(a b c d) 1)
+(my-drop '(a b c d) 0)
+(my-drop '(a b c d) -1)
+(my-drop '() 2)
+(my-drop '(() () ()) 2)
+(my-drop '(a) 3)
+(my-drop '((a b c) (d e f) (g (h i)) (j (k l))) 2)
 |#
 
 #|
