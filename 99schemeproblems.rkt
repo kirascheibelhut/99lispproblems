@@ -432,8 +432,26 @@ Tests:
 #|
 17. (*) Split a list into two parts; the length of the first part is given.
         Do not use any predefined predicates.
-        Example: (split '(a b c d e f g h i k) 3)
-                 ( (A B C) (D E F G H I K))
+        Example: (split '(a b c d e f g h i j k) 3)
+                 ( (A B C) (D E F G H I J K))
+|#
+
+(define (my-split items k)
+  (if (or (<= k 0) (>= k (my-length items)))
+      items
+      (cons (partial-head items k) (list (partial-tail items k)))))
+
+#|
+Tests:
+(my-split '(a b c d e f g h i j k) 3)
+(my-split '(a b c d) 7)
+(my-split '(a b c d) 4)
+(my-split '(a b c d) 0)
+(my-split '(a b c d) -1)
+(my-split '() 2)
+(my-split '(() () ()) 2)
+(my-split '(a) 3)
+(my-split '((a b c) (d e f) (g (h i)) (j (k l))) 2)
 |#
 
 #|
