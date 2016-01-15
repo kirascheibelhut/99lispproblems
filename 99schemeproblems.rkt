@@ -238,7 +238,7 @@ Tests:
       '()
       (cons elem (my-repeat elem (- k 1)))))
 
-; Partial-tail prints a list of all of the elements from the (k+1)st position in the list, items, to the end.
+; Partial-tail returns the list, items, with the first k elements removed. 
 
 (define (partial-tail items k)
   (if (or (null? items) (null? (cdr items)) (>= k (my-length items))) 
@@ -403,7 +403,7 @@ Tests:
                   (A B D E G H J K)
 |#
 
-; Partial-head prints a list of all of the elements from the beginning of the list, items, to the kth position.
+; Partial-head returns a list of the first k elements of the list, items. 
 
 (define (partial-head items k)
   (if (or (null? items) (<= k 0))
