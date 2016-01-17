@@ -247,10 +247,10 @@ Tests:
 
 (define (my-pack items)
   (let ((k (count-initial-repeat items)))
-  (if (null? items)
-      items
-      (cons (my-repeat (car items) k) 
-            (my-pack (partial-tail items k))))))
+    (if (null? items)
+        items
+        (cons (my-repeat (car items) k)
+              (my-pack (partial-tail items k))))))
 
 #|
 Tests:
@@ -341,9 +341,9 @@ Tests:
    
 (define (my-encode-direct items)
   (let ((k (count-initial-repeat items)))
-  (cond ((null? items) items)
-        ((= k 1) (cons (car items) (my-encode-direct (partial-tail items k))))
-        (else (cons (list k (car items)) (my-encode-direct (partial-tail items k)))))))
+    (cond ((null? items) items)
+          ((= k 1) (cons (car items) (my-encode-direct (partial-tail items k))))
+          (else (cons (list k (car items)) (my-encode-direct (partial-tail items k)))))))
 
 #|
 Tests:
@@ -433,7 +433,7 @@ Tests:
 17. (*) Split a list into two parts; the length of the first part is given.
         Do not use any predefined predicates.
         Example: (split '(a b c d e f g h i j k) 3)
-                 ( (A B C) (D E F G H I J K))
+                 ((A B C) (D E F G H I J K))
 |#
 
 (define (my-split items k)
