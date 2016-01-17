@@ -495,6 +495,27 @@ Tests:
          Hint: Use the predefined functions length and append, as well as the result of problem 17.
 |#
 
+(define (my-rotate items k)
+  (let ((l (my-length items)))
+    (cond ((or (null? items) (= k 0)) items)
+          ((>= k l) (my-rotate items (modulo k l)))
+          ((< k 0) (my-rotate items (- l (abs k))))
+          (else (append (cadr (my-split items k)) (car (my-split items k)))))))
+
+#|
+Tests:
+(my-rotate '(a b c d e f g h) 3)
+(my-rotate '(a b c d e f g h) -2)
+(my-rotate '(a b c d) 7)
+(my-rotate '(a b c d) 4)
+(my-rotate '(a b c d) 0)
+(my-rotate '(a b c d) -1)
+(my-rotate '() 2)
+(my-rotate '(() () ()) 2)
+(my-rotate '(a) 3)
+(my-rotate '((a b c) (d e f) (g (h i)) (j (k l))) 2)
+|#
+
 #|
 20. (*) Remove the K'th element from a list.
         Example: (remove-at '(a b c d) 2)
